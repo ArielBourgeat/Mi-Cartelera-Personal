@@ -14,11 +14,47 @@ import { deleteCollectionItem, listCollection } from '../services/collection.ts'
 import { ESTADOS_VISUALIZACION, type EstadoVisualizacion, type MiListaRow } from '../types/index.ts'
 
 type FiltroEstado = 'todas' | EstadoVisualizacion
+type OrdenColeccion = 'fecha_desc' | 'fecha_asc' | 'nota_desc' | 'nota_asc'
 
 const FILTERS: { id: FiltroEstado; label: string }[] = [
   { id: 'todas', label: 'Todas' },
   ...ESTADOS_VISUALIZACION.map((estado) => ({ id: estado, label: ESTADO_LABEL[estado] })),
 ]
+
+const ORDENES: { id: OrdenColeccion; label: string }[] = [
+  { id: 'fecha_desc', label: 'Fecha agregada, más recientes' },
+  { id: 'fecha_asc', label: 'Fecha agregada, más antiguas' },
+  { id: 'nota_desc', label: 'Calificación personal, mayor a menor' },
+  { id: 'nota_asc', label: 'Calificación personal, menor a mayor' },
+]
+
+function isOrden(value: string): value is OrdenColeccion {
+  return ORDENES.some((option) => option.id === value)
+}
+
+function countPhrase(count: number, singular: string, plural: string): string {
+  return `${count} ${count === 1 ? singular : plural}`
+}
+
+function summaryText(items: MiListaRow[]): string {
+  const pendientes = items.filter((item) => item.estado === 'por_ver').length
+  const enProgreso = items.filter((item) => item.estado === 'viendo').length
+  const vistas = items.filter((item) => item.estado === 'vista').length
+  return `Tienes ${countPhrase(pendientes, 'pendiente', 'pendientes')}, ${enProgreso} en progreso y ${countPhrase(vistas, 'vista', 'vistas')}.`
+}
+
+function compareItems(a: MiListaRow, b: MiListaRow, orden: OrdenColeccion): number {
+  if (orden === 'fecha_desc' || orden === 'fecha_asc') {
+    const diff = new Date(a.fecha_agregado).getTime() - new Date(b.fecha_agregado).getTime()
+    return orden === 'fecha_asc' ? diff : -diff
+  }
+  if (a.calificacion_personal === null && b.calificacion_personal === null) return 0
+  if (a.calificacion_personal === null) return 1
+  if (b.calificacion_personal === null) return -1
+  return orden === 'nota_asc'
+    ? a.calificacion_personal - b.calificacion_personal
+    : b.calificacion_personal - a.calificacion_personal
+}
 
 function readNotice(state: unknown): string | null {
   if (!isRecord(state) || typeof state.notice !== 'string') return null
@@ -34,6 +70,7 @@ export function CollectionPage() {
   const [error, setError] = useState<string | null>(null)
   const [banner, setBanner] = useState<{ tone: 'success' | 'error'; text: string } | null>(null)
   const [filter, setFilter] = useState<FiltroEstado>('todas')
+  const [orden, setOrden] = useState<OrdenColeccion>('fecha_desc')
   const [pendingDelete, setPendingDelete] = useState<MiListaRow | null>(null)
   const [deleting, setDeleting] = useState(false)
   const notice = readNotice(location.state)
@@ -81,13 +118,16 @@ export function CollectionPage() {
     }
   }
 
-  const visible = filter === 'todas' ? items : items.filter((item) => item.estado === filter)
+  const visible = (filter === 'todas' ? items : items.filter((item) => item.estado === filter))
+    .slice()
+    .sort((a, b) => compareItems(a, b, orden))
 
   return (
     <div className="page">
       <header className="page-header">
         <h1>Mi lista</h1>
-        <p>Solo ves los títulos guardados en tu cuenta. Los más recientes aparecen primero.</p>
+        <p>Solo ves los títulos guardados en tu cuenta.</p>
+        {!loading && !error && items.length > 0 ? <p className="summary-line">{summaryText(items)}</p> : null}
       </header>
 
       {shownBanner ? (
@@ -112,18 +152,37 @@ export function CollectionPage() {
 
       {!loading && !error && items.length > 0 ? (
         <>
-          <div className="filter-bar" role="group" aria-label="Filtrar por estado">
-            {FILTERS.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                className={filter === option.id ? 'chip active' : 'chip'}
-                aria-pressed={filter === option.id}
-                onClick={() => setFilter(option.id)}
+          <div className="collection-tools">
+            <div className="filter-bar" role="group" aria-label="Filtrar por estado">
+              {FILTERS.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={filter === option.id ? 'chip active' : 'chip'}
+                  aria-pressed={filter === option.id}
+                  onClick={() => setFilter(option.id)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+            <label className="field sort-field" htmlFor="orden-lista">
+              <span>Ordenar</span>
+              <select
+                id="orden-lista"
+                value={orden}
+                onChange={(event) => {
+                  const value = event.target.value
+                  if (isOrden(value)) setOrden(value)
+                }}
               >
-                {option.label}
-              </button>
-            ))}
+                {ORDENES.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
           {visible.length === 0 ? (
             <EmptyState

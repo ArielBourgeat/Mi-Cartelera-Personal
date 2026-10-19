@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { SiteHeader } from './SiteHeader.tsx'
 
 export function AuthShell({
   title,
@@ -12,17 +13,16 @@ export function AuthShell({
   alternate: ReactNode
 }) {
   return (
-    <div className="auth-screen">
-      <section className="auth-copy">
-        <p className="brand-hero">Mi Cartelera Personal</p>
-        <p>Busca películas y series reales y administra lo que quieres ver, lo que estás viendo y lo que ya viste.</p>
-      </section>
-      <section className="auth-card">
-        <h1>{title}</h1>
-        <p className="lead">{lead}</p>
-        {children}
-        <p className="auth-alternate">{alternate}</p>
-      </section>
+    <div className="app-shell">
+      <SiteHeader mode="guest" />
+      <main className="auth-main" id="contenido">
+        <section className="auth-card">
+          <h1>{title}</h1>
+          <p className="lead">{lead}</p>
+          {children}
+          <p className="auth-alternate">{alternate}</p>
+        </section>
+      </main>
     </div>
   )
 }

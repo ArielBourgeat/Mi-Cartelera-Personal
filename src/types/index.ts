@@ -35,7 +35,9 @@ export interface TmdbSearchItem {
   tipo: TipoContenido
   titulo: string
   posterUrl: string | null
+  backdropUrl: string | null
   anio: string | null
+  calificacionOficial: number | null
 }
 
 export interface TmdbCastMember {

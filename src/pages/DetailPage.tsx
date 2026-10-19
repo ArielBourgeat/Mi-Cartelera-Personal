@@ -206,108 +206,109 @@ function DetailContent({ tipo, tmdbId }: { tipo: TipoContenido; tmdbId: number }
         </button>
       ) : null}
 
-      <div className="detail-layout">
-        <Poster src={posterUrl} alt={`Póster de ${titulo}`} />
-        <div className="detail-copy">
-          <p className="eyebrow">{TIPO_LABEL[detail?.tipo ?? item?.tipo_contenido ?? tipo]}</p>
-          <h1>{titulo}</h1>
-          <p className="year-line">{detail?.anio ?? 'Año no disponible'}</p>
-
-          <section className="panel official-panel" aria-labelledby="ficha-oficial">
-            <div className="panel-heading">
-              <h2 id="ficha-oficial">Ficha oficial</h2>
-              <span className="source-pill">TMDB</span>
-            </div>
-            <p className="hint">Datos públicos de TMDB. No forman parte de tu colección.</p>
-            {detail ? (
-              <>
-                <OfficialRating value={detail.calificacionOficial} />
-                <h3>Sinopsis</h3>
-                <p className="synopsis">{detail.sinopsis ?? 'Sinopsis no disponible.'}</p>
-                <h3>Elenco</h3>
-                {detail.elenco.length === 0 ? (
-                  <p>Elenco no disponible.</p>
-                ) : (
-                  <ul className="cast-list">
-                    {detail.elenco.map((person) => (
-                      <li key={person.id}>
-                        <strong>{person.nombre}</strong>
-                        <span>{person.personaje ?? 'Personaje no indicado'}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </>
-            ) : (
-              <p>La ficha oficial no está disponible en este momento.</p>
-            )}
-          </section>
-
-          <section className="panel personal-panel" aria-labelledby="tu-lista" ref={editorRef}>
-            <div className="panel-heading">
-              <h2 id="tu-lista">Tu lista</h2>
-              <span className="source-pill source-pill-personal">Tu cuenta</span>
-            </div>
-            <p className="hint">Estado, calificación personal y comentario guardados en Supabase.</p>
-
-            {conflict ? (
-              <MessageBanner tone="info">
-                Ya guardaste el identificador {conflict.tmdb_id} de TMDB como {TIPO_LABEL[conflict.tipo_contenido].toLowerCase()} «{conflict.titulo}». Tu lista no permite repetir el mismo identificador.{' '}
-                <Link to={`/titulo/${conflict.tipo_contenido}/${conflict.tmdb_id}`}>Abrir ese título</Link>
-              </MessageBanner>
+      <article className="detail-sheet">
+        <div className="detail-top">
+          <Poster src={posterUrl} alt={`Póster de ${titulo}`} />
+          <div className="detail-synopsis">
+            <p className="eyebrow">
+              {TIPO_LABEL[detail?.tipo ?? item?.tipo_contenido ?? tipo]}
+              {detail?.anio ? ` · ${detail.anio}` : ''}
+              {' · '}
+              {titulo}
+            </p>
+            <h1>Sinopsis</h1>
+            <p className="synopsis">{detail?.sinopsis ?? 'Sinopsis no disponible.'}</p>
+            {detail && detail.elenco.length > 0 ? (
+              <ul className="cast-list">
+                {detail.elenco.map((person) => (
+                  <li key={person.id}>
+                    <strong>{person.nombre}</strong>
+                    <span>{person.personaje ?? 'Personaje no indicado'}</span>
+                  </li>
+                ))}
+              </ul>
             ) : null}
+          </div>
+        </div>
 
-            {item && !editing ? (
-              <div className="personal-summary">
-                <p>
-                  Estado: <StatusBadge estado={item.estado} />
-                </p>
+        <section className="detail-bar" aria-labelledby="tu-lista" ref={editorRef}>
+          <h2 id="tu-lista" className="sr-only">
+            Tu valoración
+          </h2>
+          {conflict ? (
+            <MessageBanner tone="info">
+              Ya guardaste el identificador {conflict.tmdb_id} de TMDB como {TIPO_LABEL[conflict.tipo_contenido].toLowerCase()} «{conflict.titulo}».{' '}
+              <Link to={`/titulo/${conflict.tipo_contenido}/${conflict.tmdb_id}`}>Abrir ese título</Link>
+            </MessageBanner>
+          ) : null}
+
+          {item && !editing ? (
+            <div className="detail-facts">
+              <div>
+                <p className="fact-label">Rate</p>
+                <OfficialRating value={detail?.calificacionOficial ?? null} />
+              </div>
+              <div>
+                <p className="fact-label">Calificación</p>
                 <StarRating value={item.calificacion_personal} />
-                <h3>Tu comentario</h3>
+                <StatusBadge estado={item.estado} />
+              </div>
+              <div>
+                <p className="fact-label">Comentario</p>
                 <p className="comment-block">{item.comentario ?? 'Sin comentario'}</p>
                 <p className="hint">Agregado el {formatDate(item.fecha_agregado)}.</p>
-                <div className="form-actions">
-                  <button type="button" className="btn btn-primary" onClick={() => setSearchParams({ editar: '1' })}>
-                    Editar
-                  </button>
-                  <button type="button" className="btn btn-danger" onClick={() => setConfirmOpen(true)}>
-                    Eliminar
-                  </button>
-                </div>
               </div>
-            ) : null}
+            </div>
+          ) : null}
 
-            {item && editing ? (
-              <CollectionForm
-                key={`edit-${item.id}`}
-                initialEstado={item.estado}
-                initialCalificacion={item.calificacion_personal}
-                initialComentario={item.comentario}
-                submitLabel="Guardar cambios"
-                pending={pending}
-                onSubmit={handleUpdate}
-                onCancel={() => setSearchParams({}, { replace: true })}
-              />
-            ) : null}
+          {item && !editing ? (
+            <div className="form-actions">
+              <button type="button" className="btn btn-primary" onClick={() => setSearchParams({ editar: '1' })}>
+                Editar
+              </button>
+              <button type="button" className="btn btn-danger" onClick={() => setConfirmOpen(true)}>
+                Eliminar
+              </button>
+            </div>
+          ) : null}
 
-            {canAdd ? (
-              <CollectionForm
-                key={`new-${detail?.tmdbId ?? tmdbId}`}
-                initialEstado="por_ver"
-                initialCalificacion={null}
-                initialComentario={null}
-                submitLabel="Agregar a mi lista"
-                pending={pending}
-                onSubmit={handleCreate}
-              />
-            ) : null}
+          {item && editing ? (
+            <CollectionForm
+              key={`edit-${item.id}`}
+              initialEstado={item.estado}
+              initialCalificacion={item.calificacion_personal}
+              initialComentario={item.comentario}
+              submitLabel="Guardar cambios"
+              pending={pending}
+              onSubmit={handleUpdate}
+              onCancel={() => setSearchParams({}, { replace: true })}
+            />
+          ) : null}
 
-            {!item && !conflict && !detail ? (
-              <p>No se puede agregar este título sin una ficha válida de TMDB.</p>
-            ) : null}
-          </section>
-        </div>
-      </div>
+          {!item && detail ? (
+            <div className="detail-facts">
+              <div>
+                <p className="fact-label">Rate</p>
+                <OfficialRating value={detail.calificacionOficial} />
+              </div>
+            </div>
+          ) : null}
+
+          {canAdd ? (
+            <CollectionForm
+              key={`new-${detail?.tmdbId ?? tmdbId}`}
+              initialEstado="por_ver"
+              initialCalificacion={null}
+              initialComentario={null}
+              submitLabel="Agregar a mi lista"
+              pending={pending}
+              onSubmit={handleCreate}
+            />
+          ) : null}
+
+          {!item && !conflict && !detail ? <p>No se puede agregar este título sin una ficha válida de TMDB.</p> : null}
+        </section>
+      </article>
 
       <ConfirmDialog
         open={confirmOpen}

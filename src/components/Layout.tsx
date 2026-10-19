@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth.ts'
 import { MessageBanner } from './MessageBanner.tsx'
+import { SiteHeader } from './SiteHeader.tsx'
 
 export function Layout() {
-  const { user, signOut } = useAuth()
+  const { signOut } = useAuth()
   const navigate = useNavigate()
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -26,40 +27,13 @@ export function Layout() {
       <a className="skip-link" href="#contenido">
         Saltar al contenido
       </a>
-      <header className="site-header">
-        <div className="header-inner">
-          <NavLink to="/" className="brand" end>
-            <span className="brand-mark" aria-hidden="true" />
-            <span className="brand-text">
-              Mi Cartelera
-              <small>Personal</small>
-            </span>
-          </NavLink>
-          <nav className="main-nav" aria-label="Principal">
-            <NavLink to="/" end className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-              Buscar
-            </NavLink>
-            <NavLink
-              to="/mi-lista"
-              className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-            >
-              Mi lista
-            </NavLink>
-          </nav>
-          <div className="header-session">
-            {user?.email ? <span className="user-email">{user.email}</span> : null}
-            <button type="button" className="btn btn-secondary btn-small" onClick={() => void handleSignOut()} disabled={pending}>
-              {pending ? 'Saliendo…' : 'Cerrar sesión'}
-            </button>
-          </div>
+      <SiteHeader mode="app" signingOut={pending} onSignOut={() => void handleSignOut()} />
+      {error ? (
+        <div className="header-alert">
+          <MessageBanner tone="error">{error}</MessageBanner>
         </div>
-        {error ? (
-          <div className="header-alert">
-            <MessageBanner tone="error">{error}</MessageBanner>
-          </div>
-        ) : null}
-      </header>
-      <main id="contenido" className="site-main">
+      ) : null}
+      <main id="contenido">
         <Outlet />
       </main>
       <footer className="site-footer">

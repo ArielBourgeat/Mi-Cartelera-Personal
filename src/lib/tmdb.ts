@@ -31,7 +31,7 @@ export function getTmdbConfigError(): string | null {
   return null
 }
 
-export function buildPosterUrl(path: string | null, size: 'w342' | 'w500'): string | null {
+export function buildPosterUrl(path: string | null, size: 'w342' | 'w500' | 'w780' | 'w1280'): string | null {
   if (!path || !path.startsWith('/')) return null
   return `${imageBase()}/${size}${path}`
 }
@@ -112,12 +112,15 @@ function parseSearchItem(entry: unknown): TmdbSearchItem | null {
   const titulo = mediaType === 'movie' ? readString(entry, 'title') : readString(entry, 'name')
   if (id === null || titulo === null) return null
   const date = mediaType === 'movie' ? readString(entry, 'release_date') : readString(entry, 'first_air_date')
+  const vote = readFiniteNumber(entry.vote_average)
   return {
     tmdbId: id,
     tipo: mediaType === 'movie' ? 'pelicula' : 'serie',
     titulo,
     posterUrl: buildPosterUrl(posterPath(entry.poster_path), 'w342'),
+    backdropUrl: buildPosterUrl(posterPath(entry.backdrop_path), 'w1280'),
     anio: yearFrom(date),
+    calificacionOficial: vote !== null && vote > 0 ? vote : null,
   }
 }
 
@@ -144,12 +147,15 @@ function parseMovieListItem(entry: unknown): TmdbSearchItem | null {
   const id = readId(entry.id)
   const titulo = readString(entry, 'title')
   if (id === null || titulo === null) return null
+  const vote = readFiniteNumber(entry.vote_average)
   return {
     tmdbId: id,
     tipo: 'pelicula',
     titulo,
     posterUrl: buildPosterUrl(posterPath(entry.poster_path), 'w342'),
+    backdropUrl: buildPosterUrl(posterPath(entry.backdrop_path), 'w1280'),
     anio: yearFrom(readString(entry, 'release_date')),
+    calificacionOficial: vote !== null && vote > 0 ? vote : null,
   }
 }
 
@@ -159,9 +165,9 @@ export interface PopularMoviesPage {
   totalPages: number
 }
 
-export async function fetchPopularMovies(page = 1, signal?: AbortSignal): Promise<PopularMoviesPage> {
+async function fetchMovieList(path: string, page: number, signal?: AbortSignal): Promise<PopularMoviesPage> {
   const body = await tmdbFetch(
-    '/movie/popular',
+    path,
     {
       language: 'es-ES',
       page: String(page),
@@ -179,6 +185,14 @@ export async function fetchPopularMovies(page = 1, signal?: AbortSignal): Promis
   const currentPage = readId(body.page) ?? page
   const totalPages = readId(body.total_pages) ?? currentPage
   return { items, page: currentPage, totalPages }
+}
+
+export function fetchPopularMovies(page = 1, signal?: AbortSignal): Promise<PopularMoviesPage> {
+  return fetchMovieList('/movie/popular', page, signal)
+}
+
+export function fetchNowPlaying(signal?: AbortSignal): Promise<PopularMoviesPage> {
+  return fetchMovieList('/movie/now_playing', 1, signal)
 }
 
 export async function searchTitles(query: string, signal?: AbortSignal): Promise<TmdbSearchItem[]> {
