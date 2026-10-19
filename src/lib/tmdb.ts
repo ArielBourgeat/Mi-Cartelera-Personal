@@ -139,6 +139,48 @@ function parseCast(credits: unknown): TmdbCastMember[] {
   return people
 }
 
+function parseMovieListItem(entry: unknown): TmdbSearchItem | null {
+  if (!isRecord(entry)) return null
+  const id = readId(entry.id)
+  const titulo = readString(entry, 'title')
+  if (id === null || titulo === null) return null
+  return {
+    tmdbId: id,
+    tipo: 'pelicula',
+    titulo,
+    posterUrl: buildPosterUrl(posterPath(entry.poster_path), 'w342'),
+    anio: yearFrom(readString(entry, 'release_date')),
+  }
+}
+
+export interface PopularMoviesPage {
+  items: TmdbSearchItem[]
+  page: number
+  totalPages: number
+}
+
+export async function fetchPopularMovies(page = 1, signal?: AbortSignal): Promise<PopularMoviesPage> {
+  const body = await tmdbFetch(
+    '/movie/popular',
+    {
+      language: 'es-ES',
+      page: String(page),
+    },
+    signal,
+  )
+  if (!isRecord(body) || !Array.isArray(body.results)) {
+    throw new TmdbError('TMDB respondió de una forma inesperada.')
+  }
+  const items: TmdbSearchItem[] = []
+  for (const entry of body.results) {
+    const item = parseMovieListItem(entry)
+    if (item) items.push(item)
+  }
+  const currentPage = readId(body.page) ?? page
+  const totalPages = readId(body.total_pages) ?? currentPage
+  return { items, page: currentPage, totalPages }
+}
+
 export async function searchTitles(query: string, signal?: AbortSignal): Promise<TmdbSearchItem[]> {
   const body = await tmdbFetch(
     '/search/multi',
