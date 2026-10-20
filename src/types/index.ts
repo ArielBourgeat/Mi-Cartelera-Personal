@@ -46,6 +46,13 @@ export interface TmdbCastMember {
   personaje: string | null
 }
 
+export interface TmdbWatchProvider {
+  id: number
+  nombre: string
+  logoUrl: string | null
+  sitio: string | null
+}
+
 export interface TmdbTitleDetail {
   tmdbId: number
   tipo: TipoContenido
@@ -55,4 +62,5 @@ export interface TmdbTitleDetail {
   sinopsis: string | null
   calificacionOficial: number | null
   elenco: TmdbCastMember[]
+  dondeVer: TmdbWatchProvider[]
 }

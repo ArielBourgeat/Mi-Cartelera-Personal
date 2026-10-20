@@ -424,6 +424,47 @@ main { flex: 1; }
 
 .synopsis, .comment-block { white-space: pre-wrap; }
 
+.where-watch { margin-top: 1.15rem; }
+.where-watch h2 {
+  color: var(--blue);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.7rem;
+}
+.where-watch-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+}
+.where-watch-link {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 52px;
+  padding: 0.3rem 0.75rem 0.3rem 0.3rem;
+  border: 2px solid var(--ink);
+  background: white;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+a.where-watch-link:hover { background: var(--yellow); }
+.where-watch-link img,
+.where-watch-mark {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border: 1px solid var(--ink);
+  flex: 0 0 42px;
+}
+.where-watch-mark { background: var(--yellow); }
+
 .poster-frame {
   aspect-ratio: 2 / 3;
   background: #ececec;

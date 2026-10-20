@@ -1,5 +1,6 @@
 import { isAbortError, isRecord, readFiniteNumber, readId, readString } from './guards.ts'
 import type { TipoContenido, TmdbCastMember, TmdbSearchItem, TmdbTitleDetail } from '../types/index.ts'
+import { parseWatchProviders } from './watch-providers.ts'
 
 export class TmdbError extends Error {
   constructor(message: string) {
@@ -31,7 +32,7 @@ export function getTmdbConfigError(): string | null {
   return null
 }
 
-export function buildPosterUrl(path: string | null, size: 'w342' | 'w500' | 'w780' | 'w1280'): string | null {
+export function buildPosterUrl(path: string | null, size: 'w92' | 'w154' | 'w342' | 'w500' | 'w780' | 'w1280'): string | null {
   if (!path || !path.startsWith('/')) return null
   return `${imageBase()}/${size}${path}`
 }
@@ -227,7 +228,7 @@ export async function fetchTitleDetail(
     path,
     {
       language: 'es-ES',
-      append_to_response: 'credits',
+      append_to_response: 'credits,watch/providers',
     },
     signal,
   )
@@ -245,5 +246,6 @@ export async function fetchTitleDetail(
     sinopsis: readString(body, 'overview'),
     calificacionOficial: vote !== null && vote > 0 ? vote : null,
     elenco: parseCast(body.credits),
+    dondeVer: parseWatchProviders(body, buildPosterUrl),
   }
 }

@@ -218,6 +218,40 @@ function DetailContent({ tipo, tmdbId }: { tipo: TipoContenido; tmdbId: number }
             </p>
             <h1>Sinopsis</h1>
             <p className="synopsis">{detail?.sinopsis ?? 'Sinopsis no disponible.'}</p>
+            {detail ? (
+              <section className="where-watch" aria-labelledby="where-to-watch">
+                <h2 id="where-to-watch">Where to watch</h2>
+                {detail.dondeVer.length === 0 ? (
+                  <p className="hint">No hay plataformas disponibles para este título.</p>
+                ) : (
+                  <ul className="where-watch-list">
+                    {detail.dondeVer.map((provider) => {
+                      const content = (
+                        <>
+                          {provider.logoUrl ? (
+                            <img src={provider.logoUrl} alt="" />
+                          ) : (
+                            <span className="where-watch-mark" aria-hidden="true" />
+                          )}
+                          <span>{provider.nombre}</span>
+                        </>
+                      )
+                      return (
+                        <li key={provider.id}>
+                          {provider.sitio ? (
+                            <a className="where-watch-link" href={provider.sitio} target="_blank" rel="noreferrer">
+                              {content}
+                            </a>
+                          ) : (
+                            <span className="where-watch-link">{content}</span>
+                          )}
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+              </section>
+            ) : null}
             {detail && detail.elenco.length > 0 ? (
               <ul className="cast-list">
                 {detail.elenco.map((person) => (
