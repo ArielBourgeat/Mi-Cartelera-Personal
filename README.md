@@ -1,5 +1,6 @@
 # Mi Cartelera Personal
 
+Link Vercel: https://mi-cartelera-personal-p82x0fdvw-arielbourgeats-projects.vercel.app/login
 Aplicación web para buscar películas y series en TMDB y guardar una colección personal. Cada cuenta ve solo sus títulos: estado (Por ver, Viendo o Vista), calificación del 1 al 5 y un comentario opcional.
 
 La portada muestra un fondo de fotogramas, un carrusel de estrenos y el catálogo. La ficha separa la sinopsis y la calificación de TMDB de los datos que guarda el usuario en Supabase. El acceso usa Supabase Auth y PostgreSQL con Row Level Security.
