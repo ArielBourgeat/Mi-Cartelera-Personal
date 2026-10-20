@@ -44,8 +44,6 @@ VITE_TMDB_BASE_URL=https://api.themoviedb.org/3
 VITE_TMDB_IMAGE_BASE=https://image.tmdb.org/t/p
 ```
 
-Antes de guardar títulos, ejecuta [`supabase/mi_lista.sql`](supabase/mi_lista.sql) en el SQL Editor de Supabase. En Authentication deja el proveedor Email activo, pon `http://localhost:5173` como Site URL y, si quieres entrar al crear la cuenta, desactiva **Confirm email**.
-
 ### 3. Arrancar
 
 ```bash
