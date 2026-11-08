@@ -2,7 +2,7 @@
 
 Este documento describe Mi Cartelera Personal tal como está antes de la épica Noche de película. No propone cambios. La deuda de abajo se registra y no se corrige aquí.
 
-## Qué hace hoy
+## Qué hace:
 
 Una persona crea una cuenta, busca películas y series en TMDB y guarda una colección propia. Cada título tiene estado Por ver, Viendo o Vista, una calificación personal del 1 al 5 o vacía, y un comentario opcional. La ficha separa los datos de TMDB (sinopsis, elenco, nota oficial, dónde verla) de lo que guarda el usuario.
 
