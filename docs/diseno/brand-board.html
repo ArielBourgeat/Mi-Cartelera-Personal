@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brand board — Mi Cartelera Personal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@700&family=Archivo:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #0a0a0a;
+        --bg: #f7f7f4;
+        --surface: #ffffff;
+        --blue: #2f5bff;
+        --yellow: #ffe14a;
+        --muted: #4d4d4d;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Archivo, 'Segoe UI', sans-serif;
+      }
+      main {
+        width: min(960px, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 2rem 0 3rem;
+      }
+      h1,
+      h2,
+      .display {
+        font-family: 'Archivo Narrow', Impact, sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        text-transform: uppercase;
+        margin: 0;
+      }
+      h1 {
+        font-size: 3rem;
+        line-height: 0.9;
+      }
+      h2 {
+        font-size: 1.2rem;
+        color: var(--blue);
+        margin: 2rem 0 0.8rem;
+      }
+      p {
+        margin: 0.4rem 0 0;
+      }
+      .swatches,
+      .actions,
+      .type {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+      }
+      .swatch {
+        width: 140px;
+        border: 2px solid var(--ink);
+        background: var(--surface);
+      }
+      .swatch span {
+        display: block;
+        height: 72px;
+      }
+      .swatch strong,
+      .swatch small {
+        display: block;
+        padding: 0.35rem 0.5rem;
+      }
+      .swatch small {
+        color: var(--muted);
+      }
+      button {
+        min-height: 44px;
+        padding: 0.55rem 1rem;
+        border: 2px solid var(--ink);
+        font: inherit;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      .poster {
+        width: 160px;
+        aspect-ratio: 2 / 3;
+        border: 2px solid var(--ink);
+        background: #161616;
+        color: white;
+        display: flex;
+        align-items: flex-end;
+        padding: 0.7rem;
+        font-family: 'Archivo Narrow', Impact, sans-serif;
+        text-transform: uppercase;
+      }
+      .sheet {
+        margin-top: 0.8rem;
+        max-width: 520px;
+        background: var(--surface);
+        border: 3px solid var(--ink);
+        padding: 1rem;
+      }
+      .sheet p {
+        font-family: 'Archivo Narrow', Impact, sans-serif;
+        font-size: 2.4rem;
+        color: var(--blue);
+        text-transform: none;
+        letter-spacing: -0.04em;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Mi cartelera</h1>
+      <p>Sistema visual actual. No usa Bootstrap.</p>
+
+      <h2>Color</h2>
+      <div class="swatches">
+        <div class="swatch">
+          <span id="D-color-tinta" style="background: #0a0a0a"></span>
+          <strong>Tinta</strong>
+          <small>#0a0a0a</small>
+        </div>
+        <div class="swatch">
+          <span style="background: #f7f7f4"></span>
+          <strong>Fondo</strong>
+          <small>#f7f7f4</small>
+        </div>
+        <div class="swatch">
+          <span id="D-color-azul" style="background: #2f5bff"></span>
+          <strong>Azul</strong>
+          <small>#2f5bff</small>
+        </div>
+        <div class="swatch">
+          <span id="D-color-amarillo" style="background: #ffe14a"></span>
+          <strong>Amarillo</strong>
+          <small>#ffe14a</small>
+        </div>
+      </div>
+
+      <h2>Tipo</h2>
+      <div class="type">
+        <p id="D-tipo-display" class="display" style="font-size: 2.4rem">Archivo Narrow</p>
+        <p id="D-tipo-texto">Archivo para el texto corrido de la interfaz.</p>
+      </div>
+
+      <h2>Acciones</h2>
+      <div class="actions">
+        <button id="D-boton-primario" type="button" style="background: #ffe14a; color: #0a0a0a">
+          Guardar
+        </button>
+        <button type="button" style="background: #ffffff; color: #0a0a0a">Cancelar</button>
+        <button id="D-boton-peligro" type="button" style="background: #0a0a0a; color: #ffe14a">
+          Eliminar
+        </button>
+      </div>
+
+      <h2>Piezas</h2>
+      <div class="poster" id="D-poster">Póster 2:3</div>
+      <article class="sheet" id="D-ficha">
+        <p>Sinopsis</p>
+      </article>
+    </main>
+  </body>
+</html>
