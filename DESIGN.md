@@ -2,7 +2,7 @@
 
 Este archivo es la fuente del sistema visual de Mi Cartelera Personal. Una spec de interfaz lo cita por nombre y no copia sus valores.
 
-Bootstrap no está instalado. La interfaz usa CSS propio en `src/index.css`. Introducir Bootstrap u otra librería de interfaz queda prohibido hasta que una spec lo pida y se retire esta prohibición.
+La interfaz usa CSS propio en `src/index.css`. Introducir Bootstrap u otra librería de interfaz queda prohibido hasta que una spec lo pida y se retire esta prohibición.
 
 ## Criterios
 
