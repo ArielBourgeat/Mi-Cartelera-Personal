@@ -1,5 +1,10 @@
 import { isAbortError, isRecord, readFiniteNumber, readId, readString } from './guards.ts'
-import type { TipoContenido, TmdbCastMember, TmdbSearchItem, TmdbTitleDetail } from '../types/index.ts'
+import type {
+  TipoContenido,
+  TmdbCastMember,
+  TmdbSearchItem,
+  TmdbTitleDetail,
+} from '../types/index.ts'
 import { parseWatchProviders } from './watch-providers.ts'
 
 export class TmdbError extends Error {
@@ -32,7 +37,10 @@ export function getTmdbConfigError(): string | null {
   return null
 }
 
-export function buildPosterUrl(path: string | null, size: 'w92' | 'w154' | 'w342' | 'w500' | 'w780' | 'w1280'): string | null {
+export function buildPosterUrl(
+  path: string | null,
+  size: 'w92' | 'w154' | 'w342' | 'w500' | 'w780' | 'w1280',
+): string | null {
   if (!path || !path.startsWith('/')) return null
   return `${imageBase()}/${size}${path}`
 }
@@ -59,7 +67,11 @@ function yearFrom(date: string | null): string | null {
   return /^\d{4}$/.test(year) ? year : null
 }
 
-async function tmdbFetch(path: string, params: Record<string, string>, signal?: AbortSignal): Promise<unknown> {
+async function tmdbFetch(
+  path: string,
+  params: Record<string, string>,
+  signal?: AbortSignal,
+): Promise<unknown> {
   const key = apiKey()
   if (!key) {
     throw new TmdbError(
@@ -95,7 +107,9 @@ async function tmdbFetch(path: string, params: Record<string, string>, signal?: 
     throw new TmdbError('No encontramos ese título en TMDB.')
   }
   if (response.status === 429) {
-    throw new TmdbError('TMDB está recibiendo demasiadas solicitudes. Espera un momento e inténtalo de nuevo.')
+    throw new TmdbError(
+      'TMDB está recibiendo demasiadas solicitudes. Espera un momento e inténtalo de nuevo.',
+    )
   }
 
   const body: unknown = await response.json().catch(() => null)
@@ -112,7 +126,8 @@ function parseSearchItem(entry: unknown): TmdbSearchItem | null {
   const id = readId(entry.id)
   const titulo = mediaType === 'movie' ? readString(entry, 'title') : readString(entry, 'name')
   if (id === null || titulo === null) return null
-  const date = mediaType === 'movie' ? readString(entry, 'release_date') : readString(entry, 'first_air_date')
+  const date =
+    mediaType === 'movie' ? readString(entry, 'release_date') : readString(entry, 'first_air_date')
   const vote = readFiniteNumber(entry.vote_average)
   return {
     tmdbId: id,
@@ -166,7 +181,11 @@ export interface PopularMoviesPage {
   totalPages: number
 }
 
-async function fetchMovieList(path: string, page: number, signal?: AbortSignal): Promise<PopularMoviesPage> {
+async function fetchMovieList(
+  path: string,
+  page: number,
+  signal?: AbortSignal,
+): Promise<PopularMoviesPage> {
   const body = await tmdbFetch(
     path,
     {
@@ -235,7 +254,8 @@ export async function fetchTitleDetail(
   if (!isRecord(body)) throw new TmdbError('TMDB respondió de una forma inesperada.')
   const titulo = tipo === 'pelicula' ? readString(body, 'title') : readString(body, 'name')
   if (!titulo) throw new TmdbError('TMDB no devolvió el título.')
-  const date = tipo === 'pelicula' ? readString(body, 'release_date') : readString(body, 'first_air_date')
+  const date =
+    tipo === 'pelicula' ? readString(body, 'release_date') : readString(body, 'first_air_date')
   const vote = readFiniteNumber(body.vote_average)
   return {
     tmdbId,
@@ -248,4 +268,15 @@ export async function fetchTitleDetail(
     elenco: parseCast(body.credits),
     dondeVer: parseWatchProviders(body, buildPosterUrl),
   }
+}
+
+export async function fetchMovieRuntime(
+  tmdbId: number,
+  signal?: AbortSignal,
+): Promise<number | null> {
+  const body = await tmdbFetch(`/movie/${tmdbId}`, { language: 'es-ES' }, signal)
+  if (!isRecord(body)) throw new TmdbError('TMDB respondió de una forma inesperada.')
+  const runtime = readFiniteNumber(body.runtime)
+  if (runtime === null || !Number.isInteger(runtime) || runtime <= 0) return null
+  return runtime
 }
