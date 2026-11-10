@@ -1,0 +1,28 @@
+# Verificación de Noche de película
+
+Recorrido en `http://localhost:5173` el 9 de noviembre de 2026. Las pruebas de `src/dominio/noche.test.ts` pasan: 9 de 9.
+
+La tabla `noche_sesion` no está en el proyecto de Supabase. Una consulta anónima responde que no existe en el schema cache. El archivo `supabase/noche_de_pelicula.sql` hay que ejecutarlo a mano en el SQL Editor. La app no lo corre.
+
+Para el recorrido con sesión usé una cuenta de prueba, `noche-verificacion-1794275008560@example.com`. En Mi lista quedaron Coco, Toy Story y El caballero oscuro por ver, y Breaking Bad por ver.
+
+| Criterio | Resultado obtenido                                                                                                                                                                                                                                 |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| C1       | Con 200 minutos, la lista mostró Toy Story (77 min), Coco (109 min) y El caballero oscuro (152 min), en ese orden. Breaking Bad no apareció. Con 90 minutos solo quedó Toy Story.                                                                  |
+| C2       | 29 y 601 muestran «El tiempo debe estar entre 30 y 600 minutos.» Vacío y 30.5 muestran «El tiempo debe ser un número entero de minutos.» En esos casos no aparece la lista de candidatas. Los mismos bordes están en la prueba de `validarTiempo`. |
+| C3       | Esas cuatro duraciones eran conocidas, así que la pantalla no mostró el motivo de duración desconocida. La prueba de `cabe` con duración ausente o cero pasa.                                                                                      |
+| C4       | Durante la consulta el botón pasa a «Consultando…» y se lee «Consultando duraciones…». En ese momento no hay botón Agregar.                                                                                                                        |
+| C5       | Con la consulta de duración fallida, cada película muestra «No se pudo conectar con TMDB. Revisa tu conexión.» y no se ofrece Agregar.                                                                                                             |
+| C6       | Con solo Toy Story, la duración total es 77 min. Con 200 minutos libres quedan 123. No se suma pausa.                                                                                                                                              |
+| C7       | Toy Story y Coco suman 196 min (77 + 10 + 109). Quedan 4.                                                                                                                                                                                          |
+| C8       | Con 77 minutos y Toy Story, el total es 77 y el restante es 0. La película sigue en el borrador. La prueba de `cabe` con suma exacta pasa.                                                                                                         |
+| C9       | Al intentar agregar El caballero oscuro sobre esas dos, el texto es «Quedan 4 minutos y harían falta 162.» El total sigue en 196.                                                                                                                  |
+| C10      | Al quitar Coco, el total vuelve a 77. La pausa de la película quitada no se conserva.                                                                                                                                                              |
+| C11      | Guardar «Noche de Toy Story» no crea la sesión. El aviso es «Falta la tabla de sesiones. Ejecuta supabase/noche_de_pelicula.sql en Supabase.» La lista de guardadas sigue vacía.                                                                   |
+| C12      | Sin películas: «Agrega al menos una película.» Con Toy Story y nombre vacío: «Escribe un nombre de hasta 80 caracteres.» No se crea la sesión.                                                                                                     |
+| C13      | No hubo un guardado exitoso. Después de usar la pantalla, Mi lista sigue con las cuatro en Por ver: 4 pendientes, 0 en progreso y 0 vistas. El servicio de sesiones no escribe en `mi_lista`.                                                      |
+| C14      | Sin cuenta, `/noche` y el enlace Noche terminan en Iniciar sesión. La pantalla de la noche no se muestra.                                                                                                                                          |
+| C15      | Sin verificar en el navegador. No hay una sesión guardada que editar mientras falte la tabla.                                                                                                                                                      |
+| C16      | Sin recorrido del plan anterior guardado, por la misma razón. La prueba de `cabe` cuando no entra pasa. El guardado fallido no agregó una sesión.                                                                                                  |
+| C17      | Sin verificar. Hace falta una sesión guardada y luego quitar una de sus películas de Mi lista.                                                                                                                                                     |
+| C18      | Sin recorrido con dos cuentas. En `supabase/noche_de_pelicula.sql` las políticas exigen `auth.uid() = user_id`, no hay políticas para el rol anónimo y RLS queda activo. Eso no está aplicado en el proyecto.                                      |
