@@ -299,13 +299,13 @@ export async function actualizarSesion(
   const userId = await currentUserId(client)
   const actual = await abrirSesion(id)
   exigirQueCabe(actual.tiempoDisponibleMinutos, limpias)
+  await reemplazarPeliculas(client, id, userId, limpias)
   const { error } = await client
     .from('noche_sesion')
     .update({ nombre: titulo })
     .eq('id', id)
     .eq('user_id', userId)
   if (error) throw toSesionError(error)
-  await reemplazarPeliculas(client, id, userId, limpias)
   return abrirSesion(id)
 }
 
@@ -315,6 +315,7 @@ async function reemplazarPeliculas(
   userId: string,
   peliculas: PeliculaParaGuardar[],
 ): Promise<void> {
+  const anteriores = await leerPeliculas(client, sesionId, userId)
   const { error: deleteError } = await client
     .from('noche_sesion_pelicula')
     .delete()
@@ -331,5 +332,19 @@ async function reemplazarPeliculas(
     orden: index + 1,
   }))
   const { error } = await client.from('noche_sesion_pelicula').insert(filas)
-  if (error) throw toSesionError(error)
+  if (!error) return
+  if (anteriores.length > 0) {
+    await client.from('noche_sesion_pelicula').insert(
+      anteriores.map((pelicula) => ({
+        sesion_id: sesionId,
+        user_id: userId,
+        tmdb_id: pelicula.tmdbId,
+        titulo: pelicula.titulo,
+        duracion_minutos: pelicula.duracionMinutos,
+        poster_url: pelicula.posterUrl,
+        orden: pelicula.orden,
+      })),
+    )
+  }
+  throw toSesionError(error)
 }

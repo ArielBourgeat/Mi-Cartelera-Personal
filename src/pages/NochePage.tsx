@@ -58,6 +58,7 @@ export function NochePage() {
   const [detalle, setDetalle] = useState<SesionDetalle | null>(null)
   const [editandoId, setEditandoId] = useState<number | null>(null)
   const [tiempoFijo, setTiempoFijo] = useState<number | null>(null)
+  const [tiempoConsultado, setTiempoConsultado] = useState<number | null>(null)
   const [errorLista, setErrorLista] = useState<string | null>(null)
   const consultaId = useRef(0)
 
@@ -88,6 +89,7 @@ export function NochePage() {
     if (!resultado.ok) {
       setMotivoTiempo(resultado.motivo)
       setFase('idle')
+      setTiempoConsultado(null)
       setCandidatas([])
       setNoDisponibles([])
       setErrores([])
@@ -138,9 +140,11 @@ export function NochePage() {
       setCandidatas(caben)
       setNoDisponibles(sinDuracion)
       setErrores(fallos)
+      setTiempoConsultado(resultado.minutos)
       setFase('ready')
     } catch (error) {
       if (actual !== consultaId.current) return
+      setTiempoConsultado(null)
       setErrores([
         {
           tmdbId: 0,
@@ -222,6 +226,7 @@ export function NochePage() {
     setTexto('')
     setMotivoTiempo(null)
     setFase('idle')
+    setTiempoConsultado(null)
     setCandidatas([])
     setNoDisponibles([])
     setErrores([])
@@ -285,7 +290,9 @@ export function NochePage() {
             </p>
           ) : null}
           <EstadoDeConsulta consultando={fase === 'loading'} errores={errores} />
-          {fase === 'ready' && (candidatas.length > 0 || errores.length === 0) ? (
+          {fase === 'ready' &&
+          minutosValidos === tiempoConsultado &&
+          (candidatas.length > 0 || errores.length === 0) ? (
             <>
               <h2 className="section-kicker">Las que caben</h2>
               <ListaQueCabe
@@ -295,7 +302,9 @@ export function NochePage() {
               />
             </>
           ) : null}
-          {fase === 'ready' ? <ListaNoDisponible peliculas={noDisponibles} /> : null}
+          {fase === 'ready' && minutosValidos === tiempoConsultado ? (
+            <ListaNoDisponible peliculas={noDisponibles} />
+          ) : null}
         </div>
         <div className="stack-form">
           <BorradorDeSesion

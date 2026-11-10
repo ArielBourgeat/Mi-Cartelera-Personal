@@ -6,6 +6,31 @@ Aplicación web para buscar películas y series en TMDB y guardar una colección
 
 La portada muestra un fondo de fotogramas, un carrusel de estrenos y el catálogo. La ficha separa la sinopsis y la calificación de TMDB de los datos que guarda el usuario en Supabase. El acceso usa Supabase Auth y PostgreSQL con Row Level Security.
 
+## Noche de película
+
+Segunda épica, especificada en `docs/specs/e2-noche-de-pelicula.md`. Con la sesión iniciada, el enlace Noche abre `/noche`. La persona indica los minutos libres y arma una sesión con películas por ver que quepan, con 10 minutos de pausa entre una y la siguiente. Guardar no cambia el estado de la lista.
+
+La regla de si cabe está en `src/dominio/noche.ts`. La duración la pide `src/services/duracion.ts` y las sesiones las lee y escribe `src/services/sesiones.ts`. Los componentes no llaman a TMDB ni a Supabase.
+
+Antes del primer guardado hay que ejecutar `supabase/noche_de_pelicula.sql` en el SQL Editor del proyecto. La app no corre ese archivo. La verificación del recorrido está en `docs/VERIFICACION.md` y la auditoría de C1–C18 en `docs/AUDITORIA.md`.
+
+## Tests
+
+```bash
+npm test
+```
+
+Ejecuta Vitest sobre `src/dominio/**/*.test.ts`. Cubre la regla pura: tiempo en los extremos y fuera de rango, una película sin pausa, dos películas con pausa, la suma exacta y la duración desconocida.
+
+## Harness
+
+El agente trabaja con reglas del repositorio, no con instrucciones sueltas.
+
+- `AGENTS.md` exige spec antes de código nuevo y prohíbe claves privilegiadas. Tiene menos de 40 líneas. `CLAUDE.md` solo importa ese archivo.
+- `.claude/skills/commit/SKILL.md` es la skill `/commit`, con `disable-model-invocation: true`. No se dispara sola.
+- `.claude/settings.json` registra un hook `PostToolUse` para Write, Edit y MultiEdit. Corre `node .claude/hooks/format.mjs`, que pasa Prettier solo por el archivo tocado si es `.ts`, `.tsx`, `.css`, `.html`, `.json` o `.md`, y siempre termina en 0.
+- `.prettierrc.json` deja el formato: sin punto y coma, comillas simples, coma final y ancho 100.
+
 ## Instalación
 
 Hace falta Node.js 20 o superior, un proyecto de Supabase y una clave de lectura de TMDB.
@@ -30,11 +55,11 @@ VITE_SUPABASE_ANON_KEY=tu_clave_publica_anon_o_publishable
 VITE_TMDB_API_KEY=tu_api_key_de_tmdb
 ```
 
-| Variable | Dónde obtenerla |
-| --- | --- |
-| `VITE_SUPABASE_URL` | Supabase → Project Settings → API → Project URL |
+| Variable                 | Dónde obtenerla                                                                                            |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `VITE_SUPABASE_URL`      | Supabase → Project Settings → API → Project URL                                                            |
 | `VITE_SUPABASE_ANON_KEY` | La clave pública **anon** o **publishable** (`sb_publishable_...`). No uses `service_role` ni `sb_secret_` |
-| `VITE_TMDB_API_KEY` | TMDB → Settings → API. Sirve la API Key v3 o el Read Access Token |
+| `VITE_TMDB_API_KEY`      | TMDB → Settings → API. Sirve la API Key v3 o el Read Access Token                                          |
 
 `.env` no se sube al repositorio. Las variables `VITE_*` quedan visibles en el navegador, así que solo deben llevar claves públicas de lectura.
 
