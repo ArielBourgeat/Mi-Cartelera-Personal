@@ -4,6 +4,7 @@ import { Layout } from './components/Layout.tsx'
 import { ProtectedRoute } from './components/ProtectedRoute.tsx'
 import { AuthProvider } from './context/AuthProvider.tsx'
 import { CollectionPage } from './pages/CollectionPage.tsx'
+import { NochePage } from './pages/NochePage.tsx'
 import { DetailPage } from './pages/DetailPage.tsx'
 import { LoginPage } from './pages/LoginPage.tsx'
 import { RegisterPage } from './pages/RegisterPage.tsx'
@@ -22,6 +23,7 @@ export default function App() {
             <Route element={<Layout />}>
               <Route path="/" element={<SearchPage />} />
               <Route path="/mi-lista" element={<CollectionPage />} />
+              <Route path="/noche" element={<NochePage />} />
               <Route path="/titulo/:tipo/:tmdbId" element={<DetailPage />} />
             </Route>
           </Route>

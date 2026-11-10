@@ -53,18 +53,34 @@ export function SiteHeader({ mode, signingOut = false, onSignOut }: SiteHeaderPr
         </NavLink>
 
         <nav className="header-nav" aria-label="Principal">
-          <NavLink to="/" end className={({ isActive }) => (isActive ? 'film-link active' : 'film-link')}>
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) => (isActive ? 'film-link active' : 'film-link')}
+          >
             Principal
           </NavLink>
-          <NavLink to="/mi-lista" className={({ isActive }) => (isActive ? 'film-link active' : 'film-link')}>
+          <NavLink
+            to="/mi-lista"
+            className={({ isActive }) => (isActive ? 'film-link active' : 'film-link')}
+          >
             Mi lista
+          </NavLink>
+          <NavLink
+            to="/noche"
+            className={({ isActive }) => (isActive ? 'film-link active' : 'film-link')}
+          >
+            Noche
           </NavLink>
           {mode === 'app' ? (
             <button type="button" className="film-link" onClick={onSignOut} disabled={signingOut}>
               {signingOut ? 'Saliendo' : 'Salir'}
             </button>
           ) : (
-            <NavLink to="/login" className={({ isActive }) => (isActive ? 'film-link active' : 'film-link')}>
+            <NavLink
+              to="/login"
+              className={({ isActive }) => (isActive ? 'film-link active' : 'film-link')}
+            >
               Entrar
             </NavLink>
           )}
